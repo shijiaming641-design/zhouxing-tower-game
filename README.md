@@ -24,16 +24,21 @@ zhouxing-game/
 │   ├── Scripts/         # 脚本 (预留)
 │   └── Resources/       # 资源
 ├── Core/
-│   ├── BattleSystem.cs       # 战斗系统
+│   ├── BattleSystem.cs       # 战斗系统 ✅
+│   ├── Combatant.cs         # 战斗单位 ✅
+│   ├── ComboSystem.cs        # 连招系统 ✅
+│   ├── DamageCalculator.cs   # 伤害计算 ✅
+│   ├── EnemyAI.cs           # AI行为模式 ✅
 │   ├── MapSystem.cs          # 地图系统 ✅
 │   ├── ShopSystem.cs         # 商店系统 ✅
 │   ├── ProgressionSystem.cs  # 局外成长系统 ✅
 │   ├── EquipmentSystem.cs    # 装备系统 ✅
 │   ├── ItemSystem.cs        # 道具系统 ✅
-│   ├── EnemyAI.cs           # AI行为模式 ✅
+│   ├── AchievementSystem.cs  # 成就系统 ✅
+│   ├── TutorialSystem.cs    # 教程系统 ✅
+│   ├── AudioManager.cs       # 音效系统 ✅
 │   ├── UIManager.cs         # UI管理器 ✅
 │   ├── UIPanels.cs          # 界面面板 ✅
-│   ├── DamageCalculator.cs   # 伤害计算
 │   ├── SaveManager.cs        # 存档管理
 │   └── Constants.cs          # 常量定义
 ├── Entities/
@@ -57,11 +62,13 @@ zhouxing-game/
 
 ## ✨ 已实现功能
 
-### 核心战斗
+### 核心战斗 ✅ 100%
 - ✅ 猜拳出招（✊○ / ✌️△ / ✋□）
 - ✅ 猜拳克制判定
-- ✅ 连招系统（3个序列触发特殊效果）
+- ✅ 连招系统（13种连招，1-5星稀有度）
 - ✅ 伤害计算、暴击机制
+- ✅ 战斗单位（玩家/敌人/BOSS）
+- ✅ 战斗流程管理
 
 ### 地图探索
 - ✅ 4层关卡（战斗/商店/休息/事件/BOSS）
