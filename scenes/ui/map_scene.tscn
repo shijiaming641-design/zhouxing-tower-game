@@ -1,0 +1,73 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scenes/ui/map_scene.gd" id="1_script"]
+
+[node name="MapScene" type="Control"]
+script = ExtResource("1_script")
+offset_right = 1280.0
+offset_bottom = 720.0
+
+[node name="Background" type="ColorRect" parent="."]
+offset_right = 1280.0
+offset_bottom = 720.0
+color = Color(0.1, 0.1, 0.15, 1)
+
+[node name="TitleLabel" type="Label" parent="."]
+offset_left = 0.0
+offset_top = 10.0
+offset_right = 1280.0
+offset_bottom = 50.0
+theme_override_font_sizes/font_size = 32
+text = "🗻 第 16 层 → 塔底"
+horizontal_alignment = 1
+modulate = Color(1, 1, 1, 1)
+
+[node name="StatusLabel" type="Label" parent="."]
+offset_left = 20.0
+offset_top = 15.0
+offset_right = 600.0
+offset_bottom = 45.0
+theme_override_font_sizes/font_size = 16
+text = "战士 ❤️❤️❤️❤️❤️❤️ 💰0 🌱 初入地牢"
+modulate = Color(0.8, 0.8, 0.8, 1)
+
+[node name="ScrollContainer" type="ScrollContainer" parent="."]
+offset_left = 0.0
+offset_top = 60.0
+offset_right = 1280.0
+offset_bottom = 620.0
+horizontal_scroll_mode = 0
+
+[node name="MapContainer" type="Control" parent="ScrollContainer"]
+layout_mode = 2
+custom_minimum_size = Vector2(1280, 1000)
+
+[node name="HintLabel" type="Label" parent="."]
+offset_left = 0.0
+offset_top = 630.0
+offset_right = 1280.0
+offset_bottom = 660.0
+theme_override_font_sizes/font_size = 18
+text = "🖱️ 点击可访问的节点继续往下 🧗"
+horizontal_alignment = 1
+modulate = Color(0.7, 0.7, 0.7, 1)
+
+[node name="LegendPanel" type="PanelContainer" parent="."]
+offset_left = 900.0
+offset_top = 15.0
+offset_right = 1260.0
+offset_bottom = 55.0
+
+[node name="LegendLabel" type="Label" parent="LegendPanel"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+text = "⚔️战斗 🏪商店 ⛺休息 ❓事件 💀BOSS"
+modulate = Color(0.8, 0.8, 0.8, 1)
+
+[node name="BackButton" type="Button" parent="."]
+offset_left = 20.0
+offset_top = 665.0
+offset_right = 160.0
+offset_bottom = 715.0
+theme_override_font_sizes/font_size = 18
+text = "← 返回菜单"

@@ -1,0 +1,22 @@
+# Godot
+.godot/
+
+# Build
+build/
+export_presets.cfg
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Temporary
+*.tmp
+*.bak
+
+# Import files (can be regenerated)
+# icon.svg.import
+*.import

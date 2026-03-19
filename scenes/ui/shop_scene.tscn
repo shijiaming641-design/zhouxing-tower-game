@@ -1,0 +1,93 @@
+[gd_scene format=3]
+
+[node name="ShopScene" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.85, 0.85, 0.8, 1)
+
+[node name="TitleLabel" type="Label" parent="."]
+layout_mode = 1
+anchors_preset = 5
+offset_top = 20.0
+offset_right = 1280.0
+offset_bottom = 60.0
+grow_horizontal = 2
+theme_override_font_sizes/font_size = 28
+text = "商店 - 第1层"
+horizontal_alignment = 1
+modulate = Color(0, 0, 0, 1)
+
+[node name="GoldLabel" type="Label" parent="."]
+layout_mode = 0
+offset_left = 20.0
+offset_top = 20.0
+offset_right = 200.0
+offset_bottom = 50.0
+theme_override_font_sizes/font_size = 20
+text = "💰 金币: 0"
+modulate = Color(0, 0, 0, 1)
+
+[node name="HealButton" type="Button" parent="."]
+layout_mode = 1
+anchors_preset = 8
+offset_left = -130.0
+offset_top = -110.0
+offset_right = 130.0
+offset_bottom = -60.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_font_sizes/font_size = 18
+text = "恢复 (+5生命) - 15金"
+
+[node name="AttackButton" type="Button" parent="."]
+layout_mode = 1
+anchors_preset = 8
+offset_left = -130.0
+offset_top = -40.0
+offset_right = 130.0
+offset_bottom = 10.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_font_sizes/font_size = 18
+text = "攻击+1 - 25金"
+
+[node name="MaxHPButton" type="Button" parent="."]
+layout_mode = 1
+anchors_preset = 8
+offset_left = -130.0
+offset_top = 30.0
+offset_right = 130.0
+offset_bottom = 80.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_font_sizes/font_size = 18
+text = "最大生命+3 - 30金"
+
+[node name="NextButton" type="Button" parent="."]
+layout_mode = 1
+anchors_preset = 8
+offset_left = -130.0
+offset_top = 120.0
+offset_right = 130.0
+offset_bottom = 170.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_font_sizes/font_size = 18
+text = "前往下一关 →"
+
+[node name="BackButton" type="Button" parent="."]
+layout_mode = 0
+offset_left = 20.0
+offset_top = 650.0
+offset_right = 180.0
+offset_bottom = 700.0
+theme_override_font_sizes/font_size = 18
+text = "返回地图"
