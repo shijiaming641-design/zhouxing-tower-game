@@ -1,42 +1,43 @@
-class_name ComboData
 extends Resource
 
-## 连招数据定义
+# ComboData - 连招数据资源
 
 @export var combo_id: String = ""
 @export var display_name: String = ""
-@export var sequence: Array[int] = []
-@export var effect_type: String = ""  ## direct_damage, shield, heal
+@export var sequence: Array = []
+@export var effect_type: String = ""
 @export var effect_value: int = 0
 @export var description: String = ""
+@export var cooldown: int = 0
+@export var is_combat: bool = true
+@export var is_exclusive: bool = false
+@export var exclusive_class: String = ""
+@export var role: String = ""
+@export var usage_hint: String = ""
 
-## 预定义连招列表
-static func get_all_combos() -> Array[ComboData]:
-	var combos: Array[ComboData] = []
-	
-	var combo1 := ComboData.new()
-	combo1.combo_id = "lightning"
-	combo1.display_name = "闪电突袭"
-	combo1.sequence = [0, 0, 1]  # OO△
-	combo1.effect_type = "direct_damage"
-	combo1.effect_value = 3
-	combo1.description = "造成3点伤害"
-	combos.append(combo1)
-	
-	var combo2 := ComboData.new()
-	combo2.combo_id = "defense"
-	combo2.display_name = "稳固防御"
-	combo2.sequence = [1, 1, 2]  # △△□
-	combo2.effect_type = "shield"
-	combo2.effect_value = 1
-	combo2.description = "护甲+1"
-	combos.append(combo2)
-	
+static var _combo_db_cache = null
+
+static func _get_combo_db():
+	if _combo_db_cache == null:
+		_combo_db_cache = load("res://resources/combo_database.gd").new()
+		_combo_db_cache._init_database()
+	return _combo_db_cache
+
+static func get_all_combos():
+	var combos = []
+	for combo_info in _get_combo_db().get_all_combos():
+		combos.append(_from_combo_info(combo_info))
 	return combos
 
-## 检查输入序列是否匹配连招
-static func check_combo(moves: Array[int]) -> ComboData:
-	var all_combos := get_all_combos()
+static func get_combo_by_id(id: String):
+	"""根据ID获取连招数据"""
+	var combo_info = _get_combo_db().get_combo_by_id(id)
+	if combo_info:
+		return _from_combo_info(combo_info)
+	return null
+
+static func check_combo(moves):
+	var all_combos = get_all_combos()
 	
 	for combo in all_combos:
 		if _matches_sequence(moves, combo.sequence):
@@ -44,13 +45,63 @@ static func check_combo(moves: Array[int]) -> ComboData:
 	
 	return null
 
-static func _matches_sequence(moves: Array[int], sequence: Array[int]) -> bool:
+static func _matches_sequence(moves, sequence):
 	if moves.size() < sequence.size():
 		return false
 	
-	var start_idx := moves.size() - sequence.size()
+	var start_idx = moves.size() - sequence.size()
 	for i in range(sequence.size()):
 		if moves[start_idx + i] != sequence[i]:
 			return false
 	
 	return true
+
+# 医生专属连招
+static func get_doctor_combos():
+	return get_exclusive_combos("医生")
+
+# 黑客专属连招
+static func get_hacker_combos():
+	return get_exclusive_combos("黑客")
+
+# 商人专属连招
+static func get_merchant_combos():
+	return get_exclusive_combos("商人")
+
+# 农民专属连招
+static func get_farmer_combos():
+	return get_exclusive_combos("农民")
+
+static func get_wanderer_combos():
+	return get_exclusive_combos("流浪者")
+
+static func get_exclusive_combos(char_class: String) -> Array:
+	var result: Array = []
+	for combo_info in _get_combo_db().get_class_exclusive_combos(char_class):
+		result.append(_from_combo_info(combo_info))
+	return result
+
+static func _from_combo_info(combo_info):
+	var combo = load("res://resources/combo_data.gd").new()
+	combo.combo_id = combo_info.id
+	combo.display_name = combo_info.name
+	combo.sequence = combo_info.sequence.duplicate()
+	combo.effect_type = combo_info.effect_type
+	combo.effect_value = combo_info.effect_value
+	combo.description = combo_info.description
+	combo.cooldown = combo_info.cooldown
+	combo.is_combat = true
+	combo.is_exclusive = combo_info.exclusive_class != ""
+	combo.exclusive_class = combo_info.exclusive_class
+	combo.role = combo_info.role
+	combo.usage_hint = combo_info.usage_hint
+	return combo
+
+static func sequence_to_string(sequence):
+	var symbols = ["○", "△", "□"]
+	var result = ""
+	for i in range(sequence.size()):
+		if i > 0:
+			result += "→"
+		result += symbols[sequence[i]]
+	return result

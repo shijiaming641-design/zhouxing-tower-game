@@ -11,7 +11,7 @@ layout_mode = 1
 anchors_preset = 15
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0.85, 0.85, 0.8, 1)
+color = Color(0.12, 0.12, 0.18, 1)
 
 [node name="TitleLabel" type="Label" parent="."]
 layout_mode = 1
@@ -21,9 +21,9 @@ offset_right = 1280.0
 offset_bottom = 60.0
 grow_horizontal = 2
 theme_override_font_sizes/font_size = 28
-text = "商店 - 第1层"
+text = "🏪 商店 - 第1层"
 horizontal_alignment = 1
-modulate = Color(0, 0, 0, 1)
+modulate = Color(1, 0.9, 0.6, 1)
 
 [node name="GoldLabel" type="Label" parent="."]
 layout_mode = 0
@@ -33,7 +33,7 @@ offset_right = 200.0
 offset_bottom = 50.0
 theme_override_font_sizes/font_size = 20
 text = "💰 金币: 0"
-modulate = Color(0, 0, 0, 1)
+modulate = Color(1, 0.85, 0.4, 1)
 
 [node name="HealButton" type="Button" parent="."]
 layout_mode = 1
@@ -44,8 +44,9 @@ offset_right = 130.0
 offset_bottom = -60.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_font_sizes/font_size = 18
-text = "恢复 (+5生命) - 15金"
+theme_override_font_sizes/font_size = 20
+text = "💤 恢复 (+5生命) - 15金"
+modulate = Color(0.7, 1, 0.7, 1)
 
 [node name="AttackButton" type="Button" parent="."]
 layout_mode = 1
@@ -56,8 +57,9 @@ offset_right = 130.0
 offset_bottom = 10.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_font_sizes/font_size = 18
-text = "攻击+1 - 25金"
+theme_override_font_sizes/font_size = 20
+text = "⚔️ 攻击+1 - 25金"
+modulate = Color(1, 0.7, 0.7, 1)
 
 [node name="MaxHPButton" type="Button" parent="."]
 layout_mode = 1
@@ -68,8 +70,9 @@ offset_right = 130.0
 offset_bottom = 80.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_font_sizes/font_size = 18
-text = "最大生命+3 - 30金"
+theme_override_font_sizes/font_size = 20
+text = "❤️ 最大生命+3 - 30金"
+modulate = Color(0.7, 0.8, 1, 1)
 
 [node name="NextButton" type="Button" parent="."]
 layout_mode = 1
@@ -80,8 +83,9 @@ offset_right = 130.0
 offset_bottom = 170.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_font_sizes/font_size = 18
+theme_override_font_sizes/font_size = 20
 text = "前往下一关 →"
+modulate = Color(0.7, 1, 0.7, 1)
 
 [node name="BackButton" type="Button" parent="."]
 layout_mode = 0
@@ -90,4 +94,5 @@ offset_top = 650.0
 offset_right = 180.0
 offset_bottom = 700.0
 theme_override_font_sizes/font_size = 18
-text = "返回地图"
+text = "← 返回地图"
+modulate = Color(0.8, 0.8, 0.8, 1)

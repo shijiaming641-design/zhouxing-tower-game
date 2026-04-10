@@ -15,12 +15,24 @@ const MARGIN_X: int = 100  # 左右边距
 
 @onready var title_label: Label = $TitleLabel
 @onready var status_label: Label = $StatusLabel
+@onready var materials_label: Label = $MaterialsLabel
 @onready var map_container: Control = $ScrollContainer/MapContainer
 @onready var back_button: Button = $BackButton
 @onready var scroll_container: ScrollContainer = $ScrollContainer
 
+var player_class_script = null
+
 func _ready() -> void:
 	print("MapScene _ready called")
+	
+	# 加载 PlayerClassData 脚本
+	player_class_script = load("res://resources/player_class_data.gd")
+	if player_class_script == null:
+		print("ERROR: Failed to load player_class_data.gd")
+	
+	# 连接材料变化信号
+	EventBus.materials_changed.connect(_on_materials_changed)
+	
 	_update_display()
 	_create_tree_map()  # 爬塔布局
 	back_button.pressed.connect(_on_back_pressed)
@@ -28,19 +40,32 @@ func _ready() -> void:
 func _on_back_pressed() -> void:
 	back_to_menu_pressed.emit()
 
+func _on_materials_changed(new_amount: int) -> void:
+	"""材料变化时更新显示"""
+	if materials_label:
+		materials_label.text = "🔧 材料: %d" % new_amount
+
 func _update_display() -> void:
 	# 显示当前层
 	var floor_num: int = GameState.current_floor + 1
 	title_label.text = "🗼 第 %d / %d 层" % [floor_num, GameState.max_floors]
 	
-	var class_data: Dictionary = PlayerClassData.get_class_data(GameState.player_class)
+	var class_name_str = "未知"
+	if player_class_script != null:
+		var class_data = player_class_script.get_class_data(GameState.player_class)
+		class_name_str = class_data.get("name", "未知")
+	
 	var hp_bar: String = ""
 	for i in range(GameState.player_max_hp):
 		hp_bar += "❤️" if i < GameState.player_hp else "🖤"
 	
 	# 添加难度指示
 	var difficulty_text = _get_difficulty_hint()
-	status_label.text = "%s %s 💰%d %s" % [class_data.name, hp_bar, GameState.player_gold, difficulty_text]
+	status_label.text = "%s %s 💰%d %s | %s" % [class_name_str, hp_bar, GameState.player_gold, difficulty_text, GameState.get_level_progress_text()]
+	
+	# 更新材料显示
+	if materials_label:
+		materials_label.text = "🔧 材料: %d" % GameState.materials
 
 func _get_difficulty_hint() -> String:
 	"""根据当前层数返回难度提示"""
@@ -103,7 +128,7 @@ func _create_tree_map() -> void:
 			floor_label.text = "层 %d" % floor_display
 		floor_label.position = Vector2(20, y_pos)
 		floor_label.add_theme_font_size_override("font_size", 14)
-		floor_label.modulate = Color(0.6, 0.6, 0.6)
+		floor_label.modulate = Color(0.7, 0.7, 0.65)
 		map_container.add_child(floor_label)
 		
 		# 绘制该层的所有节点
@@ -151,7 +176,7 @@ func _create_node_button(node: Dictionary, index: int, floor_idx: int) -> Button
 			btn.add_theme_color_override("font_pressed_color", Color.YELLOW)
 		else:
 			# 非当前层但可访问（上下层）
-			btn.modulate = btn.modulate.darkened(0.3)
+			btn.modulate = btn.modulate.darkened(0.2)
 	else:
 		btn.disabled = true
 		if node.visited:
