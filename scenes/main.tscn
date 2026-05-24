@@ -1,6 +1,11 @@
-[gd_scene load_steps=2 format=3 uid="uid://mainnew001"]
+[gd_scene format=3 uid="uid://mainnew001"]
 
-[ext_resource type="Script" path="res://scenes/main.gd" id="1_main"]
+[ext_resource type="Script" uid="uid://5tihskubs5c8" path="res://scenes/main.gd" id="1_main"]
+[ext_resource type="Texture2D" uid="uid://dtl45vpukiekg" path="res://assets/ui/china/backgrounds/china_map_bg.png" id="2_0wfyh"]
 
-[node name="Main" type="Node2D"]
+[node name="Main" type="Node2D" unique_id=1633146732]
 script = ExtResource("1_main")
+
+[node name="ChinaMapBg" type="Sprite2D" parent="." unique_id=371575781]
+position = Vector2(3, 0)
+texture = ExtResource("2_0wfyh")

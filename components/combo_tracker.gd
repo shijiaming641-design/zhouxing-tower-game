@@ -1,6 +1,8 @@
 class_name ComboTracker
 extends Node
 
+const MoveSymbols = preload("res://resources/move_symbols.gd")
+
 ## 连招追踪器 - 追踪玩家出招并检测连招
 
 signal combo_detected(combo: ComboData)
@@ -44,11 +46,7 @@ func get_history() -> Array[int]:
 	return move_history.duplicate()
 
 func get_move_symbol(move_type: int) -> String:
-	match move_type:
-		0: return "○"  # 圆
-		1: return "△"  # 三角
-		2: return "□"  # 方
-		_: return "?"
+	return MoveSymbols.move_name(move_type)
 
 func get_history_text() -> String:
 	var text := ""

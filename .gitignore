@@ -16,6 +16,7 @@ Thumbs.db
 # Temporary
 *.tmp
 *.bak
+screenshots/
 
 # Import files (can be regenerated)
 # icon.svg.import

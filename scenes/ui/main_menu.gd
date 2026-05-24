@@ -9,22 +9,24 @@ signal continue_game_pressed
 
 @onready var start_button: Button = $StartButton
 @onready var continue_button: Button = $ContinueButton
+@onready var settings_button: Button = $SettingsButton
 @onready var save_summary_label: Label = $SaveSummaryLabel
 @onready var stats_button: Button = $StatsButton
+@onready var era_button: Button = $EraButton
 @onready var upgrade_button: Button = $UpgradeButton
 @onready var codex_button: Button = $CodexButton
 
 func _ready():
-	print("MainMenu _ready")
+	DebugLog.log("MainMenu _ready")
 	# 注意：StartButton 的连接由 Main.gd 处理
 	# 这里只确保按钮存在
 	if start_button:
-		print("StartButton found")
+		DebugLog.log("StartButton found")
 	else:
-		print("ERROR: StartButton not found!")
+		DebugLog.log("ERROR: StartButton not found!")
 
 	if continue_button == null:
-		print("ERROR: ContinueButton not found!")
+		DebugLog.log("ERROR: ContinueButton not found!")
 
 func configure_continue_state(has_save: bool, summary_text: String) -> void:
 	if continue_button:
@@ -33,9 +35,9 @@ func configure_continue_state(has_save: bool, summary_text: String) -> void:
 		save_summary_label.text = summary_text
 
 func _on_start_pressed():
-	print("Start button pressed!")
+	DebugLog.log("Start button pressed!")
 	start_game_pressed.emit()
 
 func _on_continue_pressed():
-	print("Continue button pressed!")
+	DebugLog.log("Continue button pressed!")
 	continue_game_pressed.emit()

@@ -89,9 +89,9 @@ func get_next_move(enemy_hp: int, enemy_max_hp: int, predicted_player_move: int 
 		Type.BASIC_FIXED:
 			move = _basic_fixed_move()
 		Type.ELITE_CYCLE:
-			move = _elite_cycle_move()
+			move = _elite_cycle_move(predicted_player_move)
 		Type.ADVANCED_DYNAMIC:
-			move = _advanced_dynamic_move(enemy_hp, enemy_max_hp)
+			move = _advanced_dynamic_move(enemy_hp, enemy_max_hp, predicted_player_move)
 		Type.BOSS_PHASE:
 			move = _boss_phase_move(predicted_player_move)
 		_:
@@ -104,14 +104,18 @@ func _basic_fixed_move() -> int:
 	return fixed_move
 
 ## 10型 - 精英敌人：按固定规律循环
-func _elite_cycle_move() -> int:
-	# 反击者：第一回合□，之后如果上回合玩家出△则出○，否则出□
+func _elite_cycle_move(predicted_player_move: int = -1) -> int:
+	# 反击者：专抓玩家重复手；没抓到时用固定底手，保持可读。
 	if dynamic_subtype == 2:
-		if last_player_move < 0:
-			return 2  # 第一回合固定□
-		if last_player_move == 1:  # 玩家出△
-			return 0  # 出○克制
-		return 2  # 否则出□
+		var repeat_trap := _repeat_trap_move(2, 0.84)
+		if repeat_trap >= 0:
+			return repeat_trap
+		return 2
+
+	# 破局者：看到玩家布局临门时，会尝试压住完成手。
+	if dynamic_subtype == 4 and predicted_player_move >= 0:
+		if randf() < 0.64:
+			return _counter_move(predicted_player_move)
 	
 	# 双变者：随机但不连续出相同招
 	if dynamic_subtype == 3:
@@ -131,7 +135,7 @@ func _elite_cycle_move() -> int:
 	return move
 
 ## 00型 - 高级敌人：动态策略
-func _advanced_dynamic_move(enemy_hp: int, enemy_max_hp: int) -> int:
+func _advanced_dynamic_move(enemy_hp: int, enemy_max_hp: int, predicted_player_move: int = -1) -> int:
 	match dynamic_subtype:
 		DynamicSubtype.MIND_READER:
 			return _mind_reader_move()
@@ -142,12 +146,15 @@ func _advanced_dynamic_move(enemy_hp: int, enemy_max_hp: int) -> int:
 		DynamicSubtype.RANDOM_SMART:
 			return _random_smart_move()
 		DynamicSubtype.SEQUENCE_MIMIC:
-			return _sequence_mimic_move()
+			return _anti_layout_move(predicted_player_move)
 		_:
 			return randi() % 3
 
 # 读心型：统计玩家最常用，然后克制
 func _mind_reader_move() -> int:
+	var repeat_trap := _repeat_trap_move(-1, 0.78)
+	if repeat_trap >= 0:
+		return repeat_trap
 	if player_history.size() < 2:
 		return randi() % 3
 	
@@ -170,18 +177,21 @@ func _state_based_move(enemy_hp: int, enemy_max_hp: int) -> int:
 	var hp_percent = float(enemy_hp) / float(enemy_max_hp)
 	
 	if hp_percent > 0.6:
-		# 高血量 - 激进进攻（70%出圆或三角）
-		if randf() < 0.7:
-			return 0 if randf() < 0.5 else 1  # ○或△
-		return 2  # □
+		# 高血量 - 两拍压前，给玩家读到节奏。
+		return 0 if player_history.size() % 2 == 0 else 1
 	elif hp_percent > 0.3:
-		# 中血量 - 均衡
+		# 中血量 - 仍有摇摆，但避免完全无规则。
+		if last_enemy_move >= 0 and randf() < 0.58:
+			return (last_enemy_move + 1) % 3
 		return randi() % 3
 	else:
-		# 低血量 - 防御（70%出三角或方）
-		if randf() < 0.7:
-			return 1 if randf() < 0.5 else 2  # △或□
-		return 0  # ○
+		# 低血量 - 明确变招，开始抓玩家上一手/重复手。
+		var repeat_trap := _repeat_trap_move(-1, 0.82)
+		if repeat_trap >= 0:
+			return repeat_trap
+		if last_player_move >= 0 and randf() < 0.74:
+			return _counter_move(last_player_move)
+		return 2
 
 # 模仿型：克制玩家上一招
 func _mimic_move() -> int:
@@ -222,6 +232,21 @@ func _sequence_mimic_move() -> int:
 	if randf() < 0.8:
 		return target
 	return randi() % 3
+
+func _anti_layout_move(predicted_player_move: int) -> int:
+	if predicted_player_move >= 0:
+		if randf() < 0.80:
+			return _counter_move(predicted_player_move)
+		return predicted_player_move
+	return _sequence_mimic_move()
+
+func _repeat_trap_move(fallback_move: int = -1, trap_chance: float = 0.80) -> int:
+	if player_history.size() >= 2:
+		var last := int(player_history[player_history.size() - 1])
+		var prev := int(player_history[player_history.size() - 2])
+		if last == prev and randf() < trap_chance:
+			return _counter_move(last)
+	return fallback_move
 
 ## 01型 - BOSS：阶段死局
 func _boss_phase_move(predicted_player_move: int) -> int:

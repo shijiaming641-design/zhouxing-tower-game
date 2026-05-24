@@ -1,6 +1,8 @@
 class_name EventBattleScene
 extends Control
 
+const MoveSymbols = preload("res://resources/move_symbols.gd")
+
 ## 事件战斗场景 - 2回合猜拳对战
 ## 用于：随机装备、商店折扣、装备损失事件的战斗判定
 ## 规则：第1回合不计入结果，第2、3回合决定最终奖励
@@ -8,7 +10,7 @@ extends Control
 signal battle_finished(result: Dictionary)
 signal battle_cancelled
 
-const MOVE_SYMBOLS: Array[String] = ["○", "△", "□"]
+const MOVE_SYMBOLS: Array[String] = MoveSymbols.MOVE_NAMES
 
 var _is_good_event: bool = true
 var _context: Dictionary = {}
@@ -59,12 +61,12 @@ func setup_battle(is_good: bool, context: Dictionary) -> void:
 func _update_ui() -> void:
 	# 标题
 	if _is_good_event:
-		title_label.text = "⚔️ 好事战斗"
+		title_label.text = _get_good_battle_title()
 		title_label.modulate = Color(0.4, 1, 0.4)
 		desc_label.text = _get_good_event_desc()
 		desc_label.modulate = Color(0.5, 0.8, 0.5)
 	else:
-		title_label.text = "⚔️ 坏事战斗"
+		title_label.text = _get_bad_battle_title()
 		title_label.modulate = Color(1, 0.4, 0.4)
 		desc_label.text = _get_bad_event_desc()
 		desc_label.modulate = Color(0.8, 0.5, 0.5)
@@ -78,18 +80,63 @@ func _update_ui() -> void:
 func _get_good_event_desc() -> String:
 	match _battle_type:
 		"random_equip":
-			return "随机装备战斗\n选择出招来击败命运！"
+			return _get_random_equip_desc()
 		"shop_discount":
-			return "商店折扣战斗\n选择出招来争取更好折扣！"
+			return _get_discount_duel_desc()
 		_:
-			return "好事战斗"
+			return _get_good_battle_title()
 
 func _get_bad_event_desc() -> String:
 	match _battle_type:
 		"equip_loss":
-			return "装备损失战斗\n选择出招来减少损失！"
+			return _get_equip_loss_desc()
 		_:
-			return "坏事战斗"
+			return _get_bad_battle_title()
+
+func _get_good_battle_title() -> String:
+	match GameState.selected_era_id:
+		"song":
+			return "⚔️ 市易博弈"
+		"china":
+			return "⚔️ 山河争势"
+		_:
+			return "⚔️ 天时争夺"
+
+func _get_bad_battle_title() -> String:
+	match GameState.selected_era_id:
+		"song":
+			return "⚔️ 边患对冲"
+		"china":
+			return "⚔️ 旧债逼阵"
+		_:
+			return "⚔️ 逆势对抗"
+
+func _get_random_equip_desc() -> String:
+	match GameState.selected_era_id:
+		"song":
+			return "百工遗器争夺\n以布局胜负决定获得器物品秩。"
+		"china":
+			return "百代遗器争夺\n以布局胜负决定获得终局器物。"
+		_:
+			return "随机装备战斗\n选择出招来击败命运！"
+
+func _get_discount_duel_desc() -> String:
+	match GameState.selected_era_id:
+		"song":
+			return "市舶让利博弈\n选择布局来争取更好的行商折价。"
+		"china":
+			return "山河行商博弈\n选择布局来争取更好的终局折价。"
+		_:
+			return "行商让利对决\n选择布局来争取更好折扣！"
+
+func _get_equip_loss_desc() -> String:
+	match GameState.selected_era_id:
+		"song":
+			return "器物折损对抗\n选择布局来减少你的损失。"
+		"china":
+			return "遗器折损对抗\n选择布局来减少终局损失。"
+		_:
+			return "装备损失战斗\n选择出招来减少损失！"
 
 func _update_round_display() -> void:
 	var round_num = _current_round + 1
@@ -103,9 +150,12 @@ func _update_round_display() -> void:
 	round_label.text = status_text
 	
 	# 更新按钮文字
-	circle_btn.text = "○"
-	tri_btn.text = "△"
-	square_btn.text = "□"
+	circle_btn.text = MoveSymbols.move_name(0)
+	tri_btn.text = MoveSymbols.move_name(1)
+	square_btn.text = MoveSymbols.move_name(2)
+	ArtRegistry.apply_button_icon(circle_btn, "tian", true, "天：%s" % MoveSymbols.move_name(0))
+	ArtRegistry.apply_button_icon(tri_btn, "ren", true, "人：%s" % MoveSymbols.move_name(1))
+	ArtRegistry.apply_button_icon(square_btn, "di", true, "地：%s" % MoveSymbols.move_name(2))
 
 func _update_reward_preview() -> void:
 	var preview_text = ""
@@ -162,7 +212,7 @@ func _show_round_result(player_move: int, enemy_move: int, result: Dictionary) -
 		# 延迟后继续下一回合
 		await get_tree().create_timer(1.5).timeout
 		
-		result_label.text = "第2回合开始！请选择..."
+		result_label.text = "第2回合开始，请继续布势..."
 		result_label.modulate = Color(0.9, 0.9, 0.8)
 	else:
 		result_label.text = "%s\n你: %s vs 敌: %s" % [result_text, symbols[player_move], symbols[enemy_move]]
@@ -178,7 +228,7 @@ func _show_round_result(player_move: int, enemy_move: int, result: Dictionary) -
 		await get_tree().create_timer(1.5).timeout
 		
 		if _current_round < 3:
-			result_label.text = "第%d回合开始！请选择..." % (_current_round + 1)
+			result_label.text = "第%d回合开始，请继续布势..." % (_current_round + 1)
 			result_label.modulate = Color(0.9, 0.9, 0.8)
 
 func _show_final_result(player_move: int, enemy_move: int, result: Dictionary) -> void:
@@ -214,30 +264,30 @@ func _get_reward_text(wins: int) -> String:
 		match _battle_type:
 			"random_equip":
 				match wins:
-					2: return "🎉 获得 🔴红色装备！"
-					1: return "🎉 获得 🔵蓝色装备！"
-					_: return "🎉 获得 ⚪白色装备！"
+					2: return "🎉 争得 🔴红色器物！"
+					1: return "🎉 争得 🔵蓝色器物！"
+					_: return "🎉 争得 ⚪白色器物！"
 			"shop_discount":
 				match wins:
-					2: return "🎉 商店7折！"
-					1: return "🎉 商店8折！"
-					_: return "🎉 商店9折！"
+					2: return "🎉 行商7折！"
+					1: return "🎉 行商8折！"
+					_: return "🎉 行商9折！"
 	else:
 		match _battle_type:
 			"equip_loss":
 				match wins:
-					2: return "😅 还好，只丢了⚪白色装备"
-					1: return "😰 糟糕，丢了🔵蓝色装备"
-					_: return "😭 倒霉，丢了🔴红色装备！"
+					2: return "😅 尚可，只折损⚪白色器物"
+					1: return "😰 失手，折损🔵蓝色器物"
+					_: return "😭 惨败，折损🔴红色器物！"
 	return ""
 
 # ===== 信号回调 =====
 
 func _on_battle_started(is_good: bool, context: Dictionary) -> void:
-	print("[EventBattleScene] Battle started: is_good=", is_good)
+	DebugLog.log("[EventBattleScene] Battle started: is_good=", is_good)
 
 func _on_round_result(round_num: int, player_move: int, enemy_move: int, won: bool) -> void:
-	print("[EventBattleScene] Round %d: player=%d enemy=%d won=%s" % [round_num, player_move, enemy_move, won])
+	DebugLog.log("[EventBattleScene] Round %d: player=%d enemy=%d won=%s" % [round_num, player_move, enemy_move, won])
 
 func _on_battle_ended(wins: int, is_good_event: bool, context: Dictionary) -> void:
-	print("[EventBattleScene] Battle ended: wins=%d is_good=%s" % [wins, is_good_event])
+	DebugLog.log("[EventBattleScene] Battle ended: wins=%d is_good=%s" % [wins, is_good_event])

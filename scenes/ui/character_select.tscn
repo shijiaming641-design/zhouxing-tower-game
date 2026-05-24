@@ -23,9 +23,9 @@ color = Color(0.12, 0.15, 0.18, 1)
 [node name="TitleLabel" type="Label" parent="."]
 layout_mode = 0
 offset_left = 440.0
-offset_top = 60.0
+offset_top = 74.0
 offset_right = 840.0
-offset_bottom = 110.0
+offset_bottom = 122.0
 theme_override_font_sizes/font_size = 40
 text = "选择你的角色"
 horizontal_alignment = 1
@@ -37,6 +37,7 @@ offset_left = 40.0
 offset_top = 150.0
 offset_right = 248.0
 offset_bottom = 300.0
+alignment = 1
 theme_override_font_sizes/font_size = 20
 text = "🏥 医生
 生命:9 攻击:2
@@ -49,6 +50,7 @@ offset_left = 288.0
 offset_top = 150.0
 offset_right = 496.0
 offset_bottom = 300.0
+alignment = 1
 theme_override_font_sizes/font_size = 20
 text = "💻 黑客
 生命:6 攻击:4
@@ -61,6 +63,7 @@ offset_left = 536.0
 offset_top = 150.0
 offset_right = 744.0
 offset_bottom = 300.0
+alignment = 1
 theme_override_font_sizes/font_size = 20
 text = "💰 商人
 生命:7 攻击:2
@@ -73,6 +76,7 @@ offset_left = 784.0
 offset_top = 150.0
 offset_right = 992.0
 offset_bottom = 300.0
+alignment = 1
 theme_override_font_sizes/font_size = 20
 text = "🌾 农民
 生命:12 攻击:2
@@ -85,6 +89,7 @@ offset_left = 1032.0
 offset_top = 150.0
 offset_right = 1240.0
 offset_bottom = 300.0
+alignment = 1
 theme_override_font_sizes/font_size = 20
 text = "🧭 流浪者
 生命:8 攻击:3
@@ -93,11 +98,11 @@ modulate = Color(0.9, 0.95, 1, 1)
 
 [node name="BackButton" type="Button" parent="."]
 layout_mode = 0
-offset_left = 20.0
-offset_top = 20.0
-offset_right = 120.0
-offset_bottom = 60.0
-theme_override_font_sizes/font_size = 16
+offset_left = 52.0
+offset_top = 642.0
+offset_right = 190.0
+offset_bottom = 690.0
+theme_override_font_sizes/font_size = 18
 text = "← 返回"
 
 [node name="ComboPanel" type="Panel" parent="."]
@@ -123,7 +128,7 @@ offset_top = 10.0
 offset_right = 1100.0
 offset_bottom = 45.0
 theme_override_font_sizes/font_size = 24
-text = "专属连招"
+text = "本命布局"
 horizontal_alignment = 1
 modulate = Color(1, 0.9, 0.6, 1)
 

@@ -1,5 +1,7 @@
 extends Resource
 
+const MoveSymbols = preload("res://resources/move_symbols.gd")
+
 # ComboData - 连招数据资源
 
 @export var combo_id: String = ""
@@ -21,7 +23,18 @@ static func _get_combo_db():
 	if _combo_db_cache == null:
 		_combo_db_cache = load("res://resources/combo_database.gd").new()
 		_combo_db_cache._init_database()
+	else:
+		_combo_db_cache._apply_unlock_progression()
 	return _combo_db_cache
+
+static func clear_combo_db_cache() -> void:
+	if _combo_db_cache != null:
+		if is_instance_valid(_combo_db_cache):
+			_combo_db_cache.all_combos.clear()
+			_combo_db_cache.combat_combos.clear()
+		if is_instance_valid(_combo_db_cache) and not _combo_db_cache.is_inside_tree():
+			_combo_db_cache.free()
+		_combo_db_cache = null
 
 static func get_all_combos():
 	var combos = []
@@ -98,10 +111,4 @@ static func _from_combo_info(combo_info):
 	return combo
 
 static func sequence_to_string(sequence):
-	var symbols = ["○", "△", "□"]
-	var result = ""
-	for i in range(sequence.size()):
-		if i > 0:
-			result += "→"
-		result += symbols[sequence[i]]
-	return result
+	return MoveSymbols.sequence_to_text(sequence)

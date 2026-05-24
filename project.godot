@@ -22,9 +22,15 @@ config/icon="res://icon.svg"
 
 [autoload]
 
+DebugLog="*res://autoload/debug_log.gd"
+ArtRegistry="*res://autoload/art_registry.gd"
 EventBus="*res://autoload/event_bus.gd"
 GameState="*res://autoload/game_state.gd"
 RandomEventManager="*res://autoload/random_event_manager.gd"
+
+[debug]
+
+zhouxing/verbose_logs=false
 
 [display]
 
@@ -32,7 +38,18 @@ window/size/viewport_width=1280
 window/size/viewport_height=720
 window/stretch/mode="canvas_items"
 
+[editor_plugins]
+
+enabled=PackedStringArray("res://addons/godot_doctor/plugin.cfg")
+
 [rendering]
 
 renderer/rendering_method="gl_compatibility"
 renderer/rendering_method.mobile="gl_compatibility"
+
+[steam]
+
+initialization/app_id=0
+initialization/initialize_on_startup=false
+initialization/embed_callbacks=false
+multiplayer_peer/max_channels=4

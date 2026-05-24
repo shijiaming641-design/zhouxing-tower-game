@@ -14,35 +14,32 @@ color = Color(0.1, 0.1, 0.15, 1)
 
 [node name="TitleLabel" type="Label" parent="."]
 offset_left = 0.0
-offset_top = 10.0
+offset_top = 62.0
 offset_right = 1280.0
-offset_bottom = 50.0
+offset_bottom = 102.0
 theme_override_font_sizes/font_size = 32
 text = "🗻 第 16 层 → 塔底"
 horizontal_alignment = 1
 modulate = Color(1, 0.9, 0.6, 1)
 
+[node name="StatusChip" type="Panel" parent="."]
+offset_left = 18.0
+offset_top = 32.0
+offset_right = 468.0
+offset_bottom = 68.0
+
 [node name="StatusLabel" type="Label" parent="."]
 offset_left = 20.0
-offset_top = 15.0
-offset_right = 600.0
-offset_bottom = 45.0
+offset_top = 38.0
+offset_right = 462.0
+offset_bottom = 66.0
 theme_override_font_sizes/font_size = 16
-text = "战士 ❤️❤️❤️❤️❤️❤️ 💰0 🌱 初入地牢"
+text = "💰 金币: 0"
 modulate = Color(0.85, 0.85, 0.75, 1)
-
-[node name="MaterialsLabel" type="Label" parent="."]
-offset_left = 20.0
-offset_top = 45.0
-offset_right = 200.0
-offset_bottom = 70.0
-theme_override_font_sizes/font_size = 16
-text = "🔧 材料: 0"
-modulate = Color(0.9, 0.8, 0.4, 1)
 
 [node name="ScrollContainer" type="ScrollContainer" parent="."]
 offset_left = 0.0
-offset_top = 60.0
+offset_top = 104.0
 offset_right = 1280.0
 offset_bottom = 620.0
 horizontal_scroll_mode = 0
@@ -53,19 +50,25 @@ custom_minimum_size = Vector2(1280, 1000)
 
 [node name="HintLabel" type="Label" parent="."]
 offset_left = 0.0
-offset_top = 630.0
+offset_top = 640.0
 offset_right = 1280.0
-offset_bottom = 660.0
+offset_bottom = 670.0
 theme_override_font_sizes/font_size = 18
 text = "🖱️ 点击可访问的节点继续往下 🧗"
 horizontal_alignment = 1
 modulate = Color(0.7, 0.7, 0.7, 1)
 
+[node name="BottomBar" type="Panel" parent="."]
+offset_left = 16.0
+offset_top = 632.0
+offset_right = 1264.0
+offset_bottom = 716.0
+
 [node name="LegendPanel" type="PanelContainer" parent="."]
-offset_left = 900.0
-offset_top = 15.0
+offset_left = 878.0
+offset_top = 78.0
 offset_right = 1260.0
-offset_bottom = 55.0
+offset_bottom = 110.0
 
 [node name="LegendBg" type="ColorRect" parent="LegendPanel"]
 layout_mode = 2
@@ -73,8 +76,9 @@ color = Color(0.18, 0.18, 0.22, 0.8)
 
 [node name="LegendLabel" type="Label" parent="LegendPanel"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 14
+theme_override_font_sizes/font_size = 13
 text = "⚔️战斗 🏪商店 ⛺休息 ❓事件 💀BOSS"
+horizontal_alignment = 1
 modulate = Color(0.9, 0.9, 0.7, 1)
 
 [node name="BackButton" type="Button" parent="."]
@@ -85,3 +89,33 @@ offset_bottom = 715.0
 theme_override_font_sizes/font_size = 18
 text = "← 返回菜单"
 modulate = Color(0.8, 0.8, 0.8, 1)
+
+[node name="TopToolDock" type="Panel" parent="."]
+offset_left = 878.0
+offset_top = 30.0
+offset_right = 1260.0
+offset_bottom = 74.0
+
+[node name="SettingsButton" type="Button" parent="."]
+offset_left = 890.0
+offset_top = 36.0
+offset_right = 1004.0
+offset_bottom = 68.0
+theme_override_font_sizes/font_size = 16
+text = "设置"
+
+[node name="RulesButton" type="Button" parent="."]
+offset_left = 1010.0
+offset_top = 36.0
+offset_right = 1124.0
+offset_bottom = 68.0
+theme_override_font_sizes/font_size = 16
+text = "规则"
+
+[node name="SoundButton" type="Button" parent="."]
+offset_left = 1130.0
+offset_top = 36.0
+offset_right = 1248.0
+offset_bottom = 68.0
+theme_override_font_sizes/font_size = 16
+text = "音效"

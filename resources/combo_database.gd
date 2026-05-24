@@ -4,6 +4,8 @@
 class_name ComboDatabase
 extends Node
 
+const MoveSymbols = preload("res://resources/move_symbols.gd")
+
 const HIDDEN_COMBO_IDS := [
 	"bloodthirsty_slash",
 	"reflect_aura",
@@ -11,6 +13,23 @@ const HIDDEN_COMBO_IDS := [
 	"desperate_counter",
 	"iron_fortress",
 	"supply_bombard"
+]
+
+const START_COMMON_COMBO_IDS := [
+	"penetrating_strike",
+	"tactical_interference",
+	"lightning_strike",
+	"solid_defense",
+	"double_strike"
+]
+
+const HIDDEN_COMBO_CATALOG := [
+	{"id": "bloodthirsty_slash", "category": "器物联动布局", "requires": "妖刀", "desc": "装备妖刀后可用"},
+	{"id": "reflect_aura", "category": "器物联动布局", "requires": "护心镜", "desc": "装备护心镜后可用"},
+	{"id": "absolute_hit", "category": "器物联动布局", "requires": "精确系统全套", "desc": "装备精确系统全套后可用"},
+	{"id": "desperate_counter", "category": "状态依赖布局", "requires": "命数≤30%", "desc": "命数低于30%时自动触发"},
+	{"id": "iron_fortress", "category": "状态依赖布局", "requires": "护甲≥5", "desc": "护甲值达到5以上时可用"},
+	{"id": "supply_bombard", "category": "状态依赖布局", "requires": "背包满格", "desc": "背包满时消耗1件物品可发动"}
 ]
 
 # 连招序列符号映射
@@ -37,6 +56,7 @@ class ComboInfo:
 	var unlock_level: int     # 解锁等级
 	var is_unlocked: bool     # 是否已解锁
 	var exclusive_class: String
+	var exclusive_era: String
 	var role: String
 	var usage_hint: String
 	
@@ -49,7 +69,8 @@ class ComboInfo:
 		p_value: int,
 		p_cooldown: int,
 		p_unlock: int,
-		p_exclusive_class: String = ""
+		p_exclusive_class: String = "",
+		p_exclusive_era: String = ""
 	):
 		id = p_id
 		name = p_name
@@ -61,6 +82,7 @@ class ComboInfo:
 		unlock_level = p_unlock
 		is_unlocked = p_unlock == UnlockLevel.BASIC  # 初始只有基础解锁
 		exclusive_class = p_exclusive_class
+		exclusive_era = p_exclusive_era
 		role = ""
 		usage_hint = ""
 
@@ -186,6 +208,49 @@ func _init_database():
 	)
 	combo8.is_unlocked = true
 	all_combos.append(combo8)
+
+	# ========== 时代专属基础布局 ==========
+	var combo_era_qin := ComboInfo.new(
+		"qin_tiger_push",
+		"虎符压阵",
+		[2, 2, 0],
+		"持令推进：本回合攻击+2，无视1护甲",
+		"pierce_buff",
+		2,
+		3,
+		UnlockLevel.BASIC,
+		"",
+		"qin"
+	)
+	all_combos.append(combo_era_qin)
+
+	var combo_era_song := ComboInfo.new(
+		"song_trade_turn",
+		"市舶周转",
+		[0, 2, 2],
+		"商路兑现：本场战斗胜利额外获得10金币",
+		"bonus_gold",
+		10,
+		2,
+		UnlockLevel.BASIC,
+		"",
+		"song"
+	)
+	all_combos.append(combo_era_song)
+
+	var combo_era_china := ComboInfo.new(
+		"china_unity_echo",
+		"山河同契",
+		[1, 0, 0],
+		"薪火回响：恢复4命，若已满命则获得2护甲",
+		"heal_shield",
+		4,
+		3,
+		UnlockLevel.BASIC,
+		"",
+		"china"
+	)
+	all_combos.append(combo_era_china)
 	
 	# ========== 特殊机制连招（仅展示，不在左侧选择列表中）==========
 	# 妖刀联动
@@ -193,7 +258,7 @@ func _init_database():
 		"bloodthirsty_slash",
 		"嗜血斩",
 		[1, 2, 1],  # △→□→△
-		"【妖刀】伤害的50%转化为生命",
+		"【妖刀】伤害的50%转化为命数",
 		"life_steal_50",
 		0,
 		3,
@@ -209,7 +274,7 @@ func _init_database():
 		[0, 2, 0],  # ○→□→○
 		"【护心镜】反弹伤害提升至3倍",
 		"reflect_3x",
-		0,
+		3,
 		3,
 		UnlockLevel.BASIC
 	)
@@ -220,7 +285,7 @@ func _init_database():
 	var combo_item3 := ComboInfo.new(
 		"absolute_hit",
 		"绝对命中",
-		[1, 0, 2],  # △→○→□
+		[1, 0, 1],
 		"【精确系统】本次攻击必中且暴击",
 		"auto_crit",
 		0,
@@ -235,7 +300,7 @@ func _init_database():
 		"desperate_counter",
 		"绝地反击",
 		[0, 0, 1],  # ○→○→△
-		"【生命≤30%】伤害×2，获得3护甲",
+		"【命数≤30%】伤害×2，获得3护甲",
 		"desperate",
 		0,
 		4,
@@ -247,7 +312,7 @@ func _init_database():
 	# 高护甲触发
 	var combo_state2 := ComboInfo.new(
 		"iron_fortress",
-		"固若金汤",
+		"铁壁反震",
 		[2, 2, 2],  # □→□→□
 		"【护甲≥5】护甲值转化为等量伤害反击",
 		"shield_to_damage",
@@ -272,143 +337,13 @@ func _init_database():
 	combo_state3.is_unlocked = false  # 不在左侧可选列表中
 	all_combos.append(combo_state3)
 	
-	# ========== 高级连招 ==========
-	# ○→△→○ 双环共振 - 全体4伤害, 冷却4
-	var combo_adv1 := ComboInfo.new(
-		"dual_ring_resonance",
-		"双环共振",
-		[0, 1, 0],
-		"范围攻击：对全体敌人造成4点伤害",
-		"damage_all",
-		4,
-		4,
-		UnlockLevel.ADVANCED
-	)
-	all_combos.append(combo_adv1)
-	
-	# △→△→△ 三角强袭 - 8伤害无视护甲, 冷却4
-	var combo_adv2 := ComboInfo.new(
-		"triangle_assault",
-		"三角强袭",
-		[1, 1, 1],
-		"单体爆发：造成8点伤害，无视1点护甲",
-		"damage_pierce",
-		8,
-		4,
-		UnlockLevel.ADVANCED
-	)
-	all_combos.append(combo_adv2)
-	
-	# □→△→□ 方阵壁垒 - 全体3护盾, 冷却4
-	var combo_adv3 := ComboInfo.new(
-		"square_barrier",
-		"方阵壁垒",
-		[2, 1, 2],
-		"团队防护：全体获得3护盾",
-		"shield_all",
-		3,
-		4,
-		UnlockLevel.ADVANCED
-	)
-	all_combos.append(combo_adv3)
-	
-	# ○→□→△ 程序过载 - 3伤害+中毒2回合, 冷却3
-	var combo_adv4 := ComboInfo.new(
-		"program_overload",
-		"程序过载",
-		[0, 2, 1],
-		"持续伤害：造成3点伤害+中毒2回合（每回合2伤害）",
-		"damage_poison",
-		5,
-		3,
-		UnlockLevel.ADVANCED
-	)
-	all_combos.append(combo_adv4)
-	
-	# △→○→△ 镜像反击 - 复制敌人招式反击, 冷却3
-	var combo_adv5 := ComboInfo.new(
-		"mirror_counter",
-		"镜像反击",
-		[1, 0, 1],
-		"复制反击：复制敌人上回合招式并反击",
-		"mirror",
-		4,
-		3,
-		UnlockLevel.ADVANCED
-	)
-	all_combos.append(combo_adv5)
-	
-	# ========== 终极连招 ==========
-	# ○→△→□→○ 完美循环 - 4伤害+3护甲+先攻, 冷却5
-	var combo_ult1 := ComboInfo.new(
-		"perfect_cycle",
-		"完美循环",
-		[0, 1, 2, 0],
-		"全能效果：造成4伤害，获得3护甲，下回合先攻",
-		"all_in_one",
-		4,
-		5,
-		UnlockLevel.ULTIMATE
-	)
-	all_combos.append(combo_ult1)
-	
-	# △→□→○→△ 毁灭三角 - 终结技, 冷却6
-	var combo_ult2 := ComboInfo.new(
-		"destructive_triangle",
-		"毁灭三角",
-		[1, 2, 0, 1],
-		"终结技：敌人每损失10%生命，额外+1伤害（最大+10）",
-		"execute",
-		10,
-		6,
-		UnlockLevel.ULTIMATE
-	)
-	all_combos.append(combo_ult2)
-	
-	# □→○→△→□ 绝对防御 - 无敌+反弹200%, 冷却5
-	var combo_ult3 := ComboInfo.new(
-		"absolute_defense",
-		"绝对防御",
-		[2, 0, 1, 2],
-		"无敌回合：下回合免疫所有伤害，反弹200%",
-		"invincible",
-		0,
-		5,
-		UnlockLevel.ULTIMATE
-	)
-	all_combos.append(combo_ult3)
-	
-	# ○→○→○ 三重圆环 - 33%即死, 冷却6
-	var combo_ult4 := ComboInfo.new(
-		"triple_ring",
-		"三重圆环",
-		[0, 0, 0],
-		"即死判定：33%概率直接击败非BOSS敌人",
-		"instant_kill",
-		0,
-		6,
-		UnlockLevel.ULTIMATE
-	)
-	all_combos.append(combo_ult4)
-	
-	# △→△→○→□ 系统崩溃 - BOSS特攻, 冷却5
-	var combo_ult5 := ComboInfo.new(
-		"system_crash",
-		"系统崩溃",
-		[1, 1, 0, 2],
-		"BOSS特攻：对BOSS额外造成最大生命15%伤害",
-		"boss_hunter",
-		0,
-		5,
-		UnlockLevel.ULTIMATE
-	)
-	all_combos.append(combo_ult5)
+	# 三步布局最多只有27种。四步布局作为额外终式空间，不挤占三步基础格。
 
 	# ========== 角色专属连招 ==========
 	all_combos.append(ComboInfo.new(
 		"diagnose",
 		"望闻问切",
-		[0, 2, 1],
+		[2, 0, 0],
 		"识破敌人弱点，本回合攻击+3，无视1护甲",
 		"pierce_buff",
 		3,
@@ -419,8 +354,8 @@ func _init_database():
 	all_combos.append(ComboInfo.new(
 		"heal_wave",
 		"妙手回春",
-		[2, 0, 2],
-		"恢复5点生命，若满血则获得2护甲",
+		[2, 0, 1],
+		"恢复5命，若满命则获得2护甲",
 		"heal_shield",
 		5,
 		4,
@@ -430,8 +365,8 @@ func _init_database():
 	all_combos.append(ComboInfo.new(
 		"virus_implant",
 		"病毒植入",
-		[1, 2, 1],
-		"敌人下回合无法行动，受到2伤害",
+		[1, 2, 2],
+		"敌人下回合无法行动，受到2伤害；你获得1护甲",
 		"stun_damage",
 		2,
 		3,
@@ -441,7 +376,7 @@ func _init_database():
 	all_combos.append(ComboInfo.new(
 		"system_overload",
 		"系统过载",
-		[2, 2, 1],
+		[2, 1, 1],
 		"无视所有护甲，造成6点伤害",
 		"ignore_armor_damage",
 		6,
@@ -452,7 +387,7 @@ func _init_database():
 	all_combos.append(ComboInfo.new(
 		"money_empire",
 		"金钱帝国",
-		[0, 0, 1],
+		[0, 1, 0],
 		"战斗胜利额外获得12金币",
 		"bonus_gold",
 		12,
@@ -463,7 +398,7 @@ func _init_database():
 	all_combos.append(ComboInfo.new(
 		"precise_mind",
 		"精算头脑",
-		[1, 1, 2],
+		[1, 1, 1],
 		"本回合暴击率+40%，暴击伤害+50%",
 		"crit_boost",
 		40,
@@ -474,7 +409,7 @@ func _init_database():
 	all_combos.append(ComboInfo.new(
 		"iron_wall",
 		"固若金汤",
-		[2, 0, 2],
+		[0, 2, 1],
 		"获得5护甲，下回合开始时再获得3护甲",
 		"armor_delayed",
 		8,
@@ -485,8 +420,8 @@ func _init_database():
 	all_combos.append(ComboInfo.new(
 		"harvest_blessing",
 		"五谷丰登",
-		[0, 2, 0],
-		"每回合恢复2生命，持续3回合",
+		[2, 1, 2],
+		"每回合恢复2命，持续3回合",
 		"regen",
 		6,
 		3,
@@ -507,7 +442,7 @@ func _init_database():
 	all_combos.append(ComboInfo.new(
 		"phase_guard",
 		"相位护盾",
-		[2, 1, 0],
+		[0, 0, 0],
 		"获得4点护甲，并短暂维持防御态势",
 		"shield_duration",
 		4,
@@ -515,9 +450,81 @@ func _init_database():
 		UnlockLevel.BASIC,
 		"流浪者"
 	))
+
+	# ========== 四步终式布局（高级解锁，不占三步27格）==========
+	all_combos.append(ComboInfo.new(
+		"formation_breaker",
+		"破阵连环",
+		[1, 1, 2, 1],
+		"连环破阵：造成8点全体伤害",
+		"damage_all",
+		8,
+		4,
+		UnlockLevel.ADVANCED
+	))
+	all_combos.append(ComboInfo.new(
+		"mountain_reversal",
+		"山岳回震",
+		[2, 2, 1, 2],
+		"守势成峰：获得6护甲，反弹伤害",
+		"shield_reflect",
+		6,
+		4,
+		UnlockLevel.ADVANCED
+	))
+	all_combos.append(ComboInfo.new(
+		"lockstep_snare",
+		"连环锁势",
+		[1, 2, 0, 2],
+		"步步封锁：造成3伤害，并眩晕敌人",
+		"stun_damage",
+		3,
+		4,
+		UnlockLevel.ADVANCED
+	))
+	all_combos.append(ComboInfo.new(
+		"renewal_cycle",
+		"生息轮转",
+		[2, 0, 2, 0],
+		"生息不绝：每回合恢复3命，持续3回合",
+		"regen",
+		9,
+		4,
+		UnlockLevel.ADVANCED
+	))
+	all_combos.append(ComboInfo.new(
+		"trade_tide",
+		"商潮回涌",
+		[0, 2, 2, 0],
+		"商路滚动：本场战斗胜利额外获得16金币",
+		"bonus_gold",
+		16,
+		3,
+		UnlockLevel.ADVANCED
+	))
+	all_combos.append(ComboInfo.new(
+		"last_lamp_reversal",
+		"残灯逆照",
+		[0, 0, 1, 2],
+		"命线将断时反扑：伤害×2，获得护甲",
+		"desperate",
+		0,
+		4,
+		UnlockLevel.ADVANCED
+	))
+	all_combos.append(ComboInfo.new(
+		"arsenal_unload",
+		"倾仓齐发",
+		[1, 1, 0, 2],
+		"物资压阵：背包满格时消耗1件物品，造成10伤害",
+		"consume_item_damage",
+		10,
+		4,
+		UnlockLevel.ADVANCED
+	))
 	_apply_balance_profile()
 	_apply_unlock_progression()
-	print("[ComboDatabase] Initialized with ", all_combos.size(), " combos")
+	DebugLog.log("[ComboDatabase] Initialized with ", all_combos.size(), " combos")
 
 func _apply_balance_profile() -> void:
 	var profiles := {
@@ -529,10 +536,13 @@ func _apply_balance_profile() -> void:
 		"cyclic_shield": {"cooldown": 3, "role": "持续护甲", "hint": "适合稳健打法。护甲能缓冲失误，尤其适合面对高攻击敌人。"},
 		"bind_fatal": {"cooldown": 4, "role": "控制补伤", "hint": "控制价值高于伤害。适合打精英和Boss，用安全回合换节奏。"},
 		"double_strike": {"cooldown": 2, "role": "攻击收益", "hint": "基础多段输出。攻击越高收益越明显，适合装备长剑、妖刀、赏金宽刃时携带。"},
+		"qin_tiger_push": {"cooldown": 3, "role": "秦卷专属强攻", "hint": "秦卷独有布局。适合抢前中段节奏，用穿透强化直接压低强敌血线。"},
+		"song_trade_turn": {"cooldown": 2, "role": "宋卷专属经营", "hint": "宋卷独有布局。越早打出越赚，适合把普通战转成后续商队和工造优势。"},
+		"china_unity_echo": {"cooldown": 3, "role": "终局专属续战", "hint": "终局独有布局。高压战里先稳住血线，再用后续布局接管节奏。"},
 		"bloodthirsty_slash": {"cooldown": 3, "role": "装备吸血", "hint": "妖刀联动技。适合攻击高但血线不稳时，用输出换回复。"},
 		"reflect_aura": {"cooldown": 3, "role": "装备反伤", "hint": "护心镜联动技。适合护甲较高时使用，把敌人的攻击压力反打回去。"},
 		"absolute_hit": {"cooldown": 4, "role": "装备爆发", "hint": "精确系统联动技。适合关键回合打确定暴击，解决高血量目标。"},
-		"desperate_counter": {"cooldown": 3, "role": "低血反打", "hint": "条件技。生命低于30%时价值很高，但不要为了触发它主动卖太多血。"},
+		"desperate_counter": {"cooldown": 3, "role": "低命反打", "hint": "条件技。命数低于30%时价值很高，但不要为了触发它主动卖太多命。"},
 		"iron_fortress": {"cooldown": 3, "role": "护甲转伤", "hint": "条件技。适合农民或护甲装备局，把防御积累转成爆发伤害。"},
 		"supply_bombard": {"cooldown": 3, "role": "资源爆破", "hint": "条件技。背包满时消耗物品打高额伤害，适合物资过剩时清库存。"},
 		"dual_ring_resonance": {"cooldown": 3, "role": "高级群伤", "hint": "高级稳定输出。比基础伤害更强，适合作为高级解锁后的泛用选择。"},
@@ -555,6 +565,13 @@ func _apply_balance_profile() -> void:
 		"harvest_blessing": {"cooldown": 3, "role": "农民回复", "hint": "持续回血适合长战斗，越早打出越赚。"},
 		"memory_burst": {"cooldown": 3, "role": "流浪者输出", "hint": "简单直接的中等伤害，适合流浪者稳定压血。"},
 		"phase_guard": {"cooldown": 3, "role": "流浪者防御", "hint": "护甲收益稳定，适合在不确定敌人出招时提高容错。"},
+		"formation_breaker": {"cooldown": 4, "role": "四步终式·破阵", "hint": "四步终式。适合压低多目标或Boss阶段血线，打出来应该像一次明确推进。"},
+		"mountain_reversal": {"cooldown": 4, "role": "四步终式·回震", "hint": "四步终式。适合先稳住防线，再把敌人的进攻压力转成反打窗口。"},
+		"lockstep_snare": {"cooldown": 4, "role": "四步终式·锁势", "hint": "四步终式。适合在危险回合前封住敌招，争取下一手空间。"},
+		"renewal_cycle": {"cooldown": 4, "role": "四步终式·生息", "hint": "四步终式。越早打出越能稳住长战斗，适合承受连续压力。"},
+		"trade_tide": {"cooldown": 3, "role": "四步终式·商潮", "hint": "四步终式。适合把普通战变成后续商店优势，早触发更赚。"},
+		"last_lamp_reversal": {"cooldown": 4, "role": "四步终式·残灯", "hint": "四步终式。血线危险时才有价值，适合保留到真正需要翻盘的回合。"},
+		"arsenal_unload": {"cooldown": 4, "role": "四步终式·倾仓", "hint": "四步终式。背包满时把资源压力转成当场爆发，适合物资过剩局。"},
 	}
 	for combo in all_combos:
 		if not profiles.has(combo.id):
@@ -567,6 +584,8 @@ func _apply_balance_profile() -> void:
 func _apply_unlock_progression() -> void:
 	for combo in all_combos:
 		if combo.id in HIDDEN_COMBO_IDS:
+			combo.is_unlocked = false
+		elif combo.exclusive_era != "" and combo.exclusive_era != GameState.selected_era_id:
 			combo.is_unlocked = false
 		else:
 			combo.is_unlocked = GameState.has_combo_tier_unlocked(combo.unlock_level)
@@ -586,11 +605,14 @@ func get_start_selectable_combos() -> Array[ComboInfo]:
 			continue
 		if combo.exclusive_class != "":
 			continue
-		if combo.sequence.size() != 3:
+		if combo.exclusive_era != "" and combo.exclusive_era != GameState.selected_era_id:
 			continue
 		if combo.id in HIDDEN_COMBO_IDS:
 			continue
-		result.append(combo)
+		if combo.exclusive_era != "":
+			result.append(combo)
+		elif combo.id in START_COMMON_COMBO_IDS:
+			result.append(combo)
 	return result
 
 # 获取所有连招（包括未解锁）
@@ -611,33 +633,138 @@ func get_class_exclusive_combos(class_display_name: String) -> Array[ComboInfo]:
 			result.append(combo)
 	return result
 
+static func get_hidden_combo_catalog() -> Array[Dictionary]:
+	var result: Array[Dictionary] = []
+	for entry in HIDDEN_COMBO_CATALOG:
+		result.append((entry as Dictionary).duplicate(true))
+	return result
+
+static func get_era_combo_name(combo_name: String) -> String:
+	var qin_map := {
+		"全体穿透": "军阵贯杀",
+		"战术干扰": "军令扰阵",
+		"闪电突袭": "疾骑突袭",
+		"稳固防御": "坚垒拒敌",
+		"能量充能": "蓄势待发",
+		"循环护盾": "玄甲回环",
+		"束缚致命": "缚敌斩首",
+		"双重打击": "双锋并进",
+		"虎符压阵": "虎符压阵",
+		"望闻问切": "军医望诊",
+		"妙手回春": "营救回春",
+		"病毒植入": "秘符暗植",
+		"系统过载": "机关过载",
+		"金钱帝国": "盐铁通筹",
+		"精算头脑": "度支神算",
+		"固若金汤": "城寨金汤",
+		"五谷丰登": "屯田丰收",
+		"记忆爆破": "旧忆裂阵",
+		"相位护盾": "游身护势"
+	}
+	var song_map := {
+		"全体穿透": "弩阵齐发",
+		"战术干扰": "机宜牵制",
+		"闪电突袭": "轻骑急袭",
+		"稳固防御": "城防固守",
+		"能量充能": "点将蓄势",
+		"循环护盾": "楼橹回护",
+		"束缚致命": "缚敌点杀",
+		"双重打击": "双锋连断",
+		"市舶周转": "市舶周转",
+		"望闻问切": "太医四诊",
+		"妙手回春": "杏林回春",
+		"病毒植入": "机巧暗植",
+		"系统过载": "算筹过载",
+		"金钱帝国": "市舶通利",
+		"精算头脑": "筹算入微",
+		"固若金汤": "铁壁保甲",
+		"五谷丰登": "丰年积粟",
+		"记忆爆破": "行旅旧梦",
+		"相位护盾": "帷幕护身"
+	}
+	var china_map := {
+		"全体穿透": "山河贯杀号",
+		"战术干扰": "终局牵制",
+		"闪电突袭": "星火突进",
+		"稳固防御": "长城固守",
+		"能量充能": "薪火蓄势",
+		"循环护盾": "山海回护",
+		"束缚致命": "锁敌定锋",
+		"双重打击": "双锋复断",
+		"山河同契": "山河同契",
+		"望闻问切": "国医四诊",
+		"妙手回春": "山河回春",
+		"病毒植入": "星图暗植",
+		"系统过载": "星火过载",
+		"金钱帝国": "百业通筹",
+		"精算头脑": "山河筹算",
+		"固若金汤": "守土成城",
+		"五谷丰登": "仓廪丰年",
+		"记忆爆破": "百代裂响",
+		"相位护盾": "归乡护势"
+	}
+	match GameState.selected_era_id:
+		"song":
+			var song_name = str(song_map.get(combo_name, combo_name))
+			if combo_name == "市舶周转":
+				return "〔宋秘〕%s" % song_name
+			return song_name
+		"china":
+			var china_name = str(china_map.get(combo_name, combo_name))
+			if combo_name == "山河同契":
+				return "〔终局〕%s" % china_name
+			return china_name
+		_:
+			var qin_name = str(qin_map.get(combo_name, combo_name))
+			if combo_name == "虎符压阵":
+				return "〔秦秘〕%s" % qin_name
+			return qin_name
+
+static func get_era_role_text(role_text: String) -> String:
+	match GameState.selected_era_id:
+		"song":
+			return "宋卷·%s" % role_text
+		"china":
+			return "终局·%s" % role_text
+		_:
+			return "秦卷·%s" % role_text
+
+static func get_era_hint_text(hint_text: String) -> String:
+	if hint_text == "":
+		return ""
+	match GameState.selected_era_id:
+		"song":
+			return "%s 适合走经营、工造与稳守路线。" % hint_text
+		"china":
+			return "%s 终局压迫更复合，适合留作关键回合翻盘。" % hint_text
+		_:
+			return "%s 适合速战强压，尽快把战局推向决胜。" % hint_text
+
 # 序列转字符串显示（如 [0,1,2] → "○→○→□"）
 func sequence_to_display(sequence: Array) -> String:
-	var symbols = ["○", "△", "□"]
-	var result = ""
-	for i in range(sequence.size()):
-		if i > 0:
-			result += "→"
-		result += symbols[sequence[i]]
-	return result
+	return MoveSymbols.sequence_to_text(sequence)
 
 # 检查输入序列是否匹配某个连招
 func check_combo_sequence(moves: Array[int]) -> ComboInfo:
-	# 只需要检查最近3个动作
 	if moves.size() < 3:
 		return null
-	
-	var last_3 = moves.slice(-3)
-	
+	var best_combo: ComboInfo = null
+	var best_len := 0
 	for combo in all_combos:
 		if not combo.is_unlocked:
 			continue
-		if combo.sequence.size() != 3:
+		if combo.sequence.size() > moves.size():
 			continue
-		if last_3[0] == combo.sequence[0] and last_3[1] == combo.sequence[1] and last_3[2] == combo.sequence[2]:
-			return combo
-	
-	return null
+		var start_idx := moves.size() - combo.sequence.size()
+		var matched := true
+		for i in range(combo.sequence.size()):
+			if moves[start_idx + i] != combo.sequence[i]:
+				matched = false
+				break
+		if matched and combo.sequence.size() > best_len:
+			best_combo = combo
+			best_len = combo.sequence.size()
+	return best_combo
 
 # ========== 战斗连招系统（连击能量触发）==========
 # 这些连招通过消耗连击能量来释放，而不是通过手势序列
@@ -746,10 +873,4 @@ func check_combat_combo_sequence(moves: Array[int]) -> CombatCombo:
 
 # 获取战斗连招的序列显示
 func combat_combo_sequence_to_display(sequence: Array[int]) -> String:
-	var symbols = ["○", "△", "□"]
-	var result = ""
-	for i in range(sequence.size()):
-		if i > 0:
-			result += "→"
-		result += symbols[sequence[i]]
-	return result
+	return MoveSymbols.sequence_to_text(sequence)

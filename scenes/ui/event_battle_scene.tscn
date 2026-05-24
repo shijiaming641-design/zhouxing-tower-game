@@ -18,7 +18,7 @@ anchors_preset = 10
 offset_right = 1280.0
 offset_bottom = 60.0
 theme_override_font_sizes/font_size = 40
-text = "⚔️ 好事战斗"
+text = "⚔️ 天时争夺"
 horizontal_alignment = 1
 modulate = Color(0.2, 0.5, 0.2, 1)
 
@@ -86,16 +86,16 @@ theme_override_constants/separation = 30
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_font_sizes/font_size = 48
-text = "○"
+text = "天"
 
 [node name="TriBtn" type="Button" parent="MoveButtons"]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_font_sizes/font_size = 48
-text = "△"
+text = "人"
 
 [node name="SquareBtn" type="Button" parent="MoveButtons"]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_font_sizes/font_size = 48
-text = "□"
+text = "地"
